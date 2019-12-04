@@ -137,6 +137,7 @@ export class EntityCollectionReducerMethods<T> {
 
     [EntityOp.SET_CHANGE_STATE]: this.setChangeState.bind(this),
     [EntityOp.SET_COLLECTION]: this.setCollection.bind(this),
+    [EntityOp.SET_TOTAL]: this.setTotal.bind(this),
     [EntityOp.SET_FILTER]: this.setFilter.bind(this),
     [EntityOp.SET_LOADED]: this.setLoaded.bind(this),
     [EntityOp.SET_LOADING]: this.setLoading.bind(this),
@@ -1149,6 +1150,16 @@ export class EntityCollectionReducerMethods<T> {
   ) {
     const newCollection = this.extractData(action);
     return collection === newCollection ? collection : newCollection;
+  }
+
+  protected setTotal(
+    collection: EntityCollection<T>,
+    action: EntityAction<number>
+  ) {
+    const newTotal = this.extractData(action);
+    return collection.total === newTotal 
+      ? collection 
+      : {...collection, newTotal};
   }
 
   protected setFilter(

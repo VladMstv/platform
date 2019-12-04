@@ -35,6 +35,7 @@ export type EntityMap<T> = (entity: T) => T;
 export interface EntityState<T> {
   ids: string[] | number[];
   entities: Dictionary<T>;
+  total: number;
 }
 
 export interface EntityDefinition<T> {

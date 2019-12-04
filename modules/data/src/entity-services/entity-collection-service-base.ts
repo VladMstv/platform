@@ -60,6 +60,7 @@ export class EntityCollectionServiceBase<
     this.selectors$ = selectors$;
     this.collection$ = selectors$.collection$;
     this.count$ = selectors$.count$;
+    this.total$ = selectors$.total$;
     this.entities$ = selectors$.entities$;
     this.entityActions$ = selectors$.entityActions$;
     this.entityMap$ = selectors$.entityMap$;
@@ -404,6 +405,9 @@ export class EntityCollectionServiceBase<
 
   /** Observable of all entities in the cached collection. */
   entities$: Observable<T[]> | Store<T[]>;
+
+  /** Observable of total numbe of entities that comes from server. */
+  total$: Observable<number> | Store<number>;
 
   /** Observable of actions related to this entity type. */
   entityActions$: Observable<EntityAction>;

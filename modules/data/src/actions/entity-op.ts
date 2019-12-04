@@ -78,6 +78,7 @@ export enum EntityOp {
 
   SET_CHANGE_STATE = '@ngrx/data/set-change-state',
   SET_COLLECTION = '@ngrx/data/set-collection',
+  SET_TOTAL = '@ngrx/data/set-total',
   SET_FILTER = '@ngrx/data/set-filter',
   SET_LOADED = '@ngrx/data/set-loaded',
   SET_LOADING = '@ngrx/data/set-loading',

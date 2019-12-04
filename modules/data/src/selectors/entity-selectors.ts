@@ -33,6 +33,9 @@ export interface CollectionSelectors<T> {
   /** All entities in the cached collection. */
   readonly selectEntities: Selector<EntityCollection<T>, T[]>;
 
+  /** Total number of entities that came from server*/
+  readonly selectTotal: Selector<EntityCollection<T>, number>;
+
   /** Map of entity keys to entities */
   readonly selectEntityMap: Selector<EntityCollection<T>, Dictionary<T>>;
 
@@ -74,6 +77,9 @@ export interface EntitySelectors<T> {
 
   /** All entities in the cached collection. */
   readonly selectEntities: MemoizedSelector<Object, T[]>;
+
+  /** Total number of entities that came from server*/
+  readonly selectTotal: MemoizedSelector<EntityCollection<T>, number>;
 
   /** The EntityCache */
   readonly selectEntityCache: MemoizedSelector<Object, EntityCache>;
@@ -187,6 +193,8 @@ export class EntitySelectorsFactory {
       keys => keys.length
     );
 
+    const selectTotal = (c: EntityCollection<T>) => c.total;
+
     // EntityCollection selectors that go beyond the ngrx/entity/EntityState selectors
     const selectFilter = (c: EntityCollection<T>) => c.filter;
 
@@ -218,6 +226,7 @@ export class EntitySelectorsFactory {
     return {
       selectCount,
       selectEntities,
+      selectTotal,
       selectEntityMap,
       selectFilter,
       selectFilteredEntities,

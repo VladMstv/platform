@@ -1,7 +1,7 @@
 import { Action, createSelector, Store } from '@ngrx/store';
 import { IdSelector, Update } from '@ngrx/entity';
 
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, OperatorFunction } from 'rxjs';
 import {
   filter,
   map,
@@ -26,6 +26,12 @@ import { EntityOp, OP_ERROR, OP_SUCCESS } from '../actions/entity-op';
 import { MergeStrategy } from '../actions/merge-strategy';
 import { QueryParams } from '../dataservices/interfaces';
 import { UpdateResponseData } from '../actions/update-response-data';
+
+class ServerResponseWithTotal<T> {
+  entities: T[];
+  total: number;
+}
+
 
 /**
  * Dispatches EntityCollection actions to their reducers and effects (default implementation).
@@ -223,7 +229,8 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
     options = this.setQueryEntityActionOptions(options);
     const action = this.createEntityAction(EntityOp.QUERY_ALL, null, options);
     this.dispatch(action);
-    return this.getResponseData$<T[]>(options.correlationId).pipe(
+    return this.getResponseData$<T[] | ServerResponseWithTotal<T>>(options.correlationId).pipe(
+      this.mapServerResponse(),
       // Use the returned entity ids to get the entities from the collection
       // as they might be different from the entities returned from the server
       // because of unsaved changes (deletes or updates).
@@ -286,6 +293,7 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
     );
     this.dispatch(action);
     return this.getResponseData$<T[]>(options.correlationId).pipe(
+      this.mapServerResponse(),
       // Use the returned entity ids to get the entities from the collection
       // as they might be different from the entities returned from the server
       // because of unsaved changes (deletes or updates).
@@ -318,6 +326,7 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
     const action = this.createEntityAction(EntityOp.QUERY_LOAD, null, options);
     this.dispatch(action);
     return this.getResponseData$<T[]>(options.correlationId).pipe(
+      this.mapServerResponse(),
       shareReplay(1)
     );
   }
@@ -538,6 +547,10 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
     this.createAndDispatch(EntityOp.UPSERT_MANY, entities, options);
   }
 
+  setTotal(total: number): void {
+    this.createAndDispatch(EntityOp.SET_TOTAL, total);
+  }
+
   /**
    * Set the pattern that the collection's filter applies
    * when using the `filteredEntities` selector.
@@ -550,6 +563,7 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
   setLoaded(isLoaded: boolean): void {
     this.createAndDispatch(EntityOp.SET_LOADED, !!isLoaded);
   }
+  
 
   /** Set the loading flag */
   setLoading(isLoading: boolean): void {
@@ -629,4 +643,14 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
     return { ...options, correlationId, isOptimistic };
   }
   // #endregion private helpers
+
+  mapServerResponse = () => (data: Observable<T[] | ServerResponseWithTotal<T>>): Observable<T[]> => 
+    data.pipe(map(data => {
+      if((data as Object).hasOwnProperty('entities')) {
+        const pagedResponse = data as ServerResponseWithTotal<T>
+        this.setTotal(pagedResponse.total);
+        return pagedResponse.entities;
+      }
+      return data as T[];
+    }));
 }

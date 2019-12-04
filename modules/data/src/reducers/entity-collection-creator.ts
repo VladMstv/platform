@@ -36,6 +36,7 @@ export function createEmptyEntityCollection<T>(
     entityName,
     ids: [],
     entities: {},
+    total: 0,
     filter: undefined,
     loaded: false,
     loading: false,

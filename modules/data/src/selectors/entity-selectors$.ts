@@ -36,6 +36,9 @@ export interface EntitySelectors$<T> {
   /** Observable of all entities in the cached collection. */
   readonly entities$: Observable<T[]> | Store<T[]>;
 
+  /** Observable of total number of entities that came from server*/
+  readonly total$: Observable<number> | Store<number>;
+
   /** Observable of actions related to this entity type. */
   readonly entityActions$: Observable<EntityAction>;
 
