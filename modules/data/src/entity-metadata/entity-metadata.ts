@@ -4,6 +4,7 @@ import { IdSelector, Comparer } from '@ngrx/entity';
 
 import { EntityDispatcherDefaultOptions } from '../dispatchers/entity-dispatcher-default-options';
 import { EntityFilterFn } from './entity-filters';
+import { EntityReducerOptions } from '../reducers/entity-reducer-options';
 
 export const ENTITY_METADATA_TOKEN = new InjectionToken<EntityMetadataMap>(
   '@ngrx/data/entity-metadata'
@@ -18,6 +19,7 @@ export interface EntityMetadata<T = any, S extends object = {}> {
   selectId?: IdSelector<T>;
   sortComparer?: false | Comparer<T>;
   additionalCollectionState?: S;
+  entityReducerOptions?: Partial<EntityReducerOptions>;
 }
 
 /** Map entity-type name to its EntityMetadata */

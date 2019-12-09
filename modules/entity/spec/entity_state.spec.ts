@@ -16,6 +16,7 @@ describe('Entity State', () => {
     expect(initialState).toEqual({
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 
@@ -28,6 +29,7 @@ describe('Entity State', () => {
       ...additionalProperties,
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 });

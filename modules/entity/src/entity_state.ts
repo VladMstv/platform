@@ -4,6 +4,7 @@ export function getInitialEntityState<V>(): EntityState<V> {
   return {
     ids: [],
     entities: {},
+    total: 0,
   };
 }
 

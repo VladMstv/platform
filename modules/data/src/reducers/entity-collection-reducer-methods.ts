@@ -194,7 +194,8 @@ export class EntityCollectionReducerMethods<T> {
   ): EntityCollection<T> {
     const data = this.extractData(action);
     const mergeStrategy = this.extractMergeStrategy(action);
-    return {
+    let newCollection = this.setTotal(collection, action);
+    newCollection = {
       ...this.entityChangeTracker.mergeQueryResults(
         data,
         collection,
@@ -203,6 +204,7 @@ export class EntityCollectionReducerMethods<T> {
       loaded: true,
       loading: false,
     };
+    return newCollection;
   }
 
   protected queryByKey(
@@ -257,12 +259,14 @@ export class EntityCollectionReducerMethods<T> {
     action: EntityAction<T[]>
   ): EntityCollection<T> {
     const data = this.extractData(action);
-    return {
+    let newCollection = this.setTotal(collection, action);
+    newCollection = {
       ...this.adapter.addAll(data, collection),
       loading: false,
       loaded: true,
       changeState: {},
     };
+    return newCollection;
   }
 
   protected queryMany(
@@ -285,7 +289,8 @@ export class EntityCollectionReducerMethods<T> {
   ): EntityCollection<T> {
     const data = this.extractData(action);
     const mergeStrategy = this.extractMergeStrategy(action);
-    return {
+    let newCollection = this.setTotal(collection, action);
+    newCollection = {
       ...this.entityChangeTracker.mergeQueryResults(
         data,
         collection,
@@ -293,6 +298,7 @@ export class EntityCollectionReducerMethods<T> {
       ),
       loading: false,
     };
+    return newCollection;
   }
   // #endregion query operations
 
@@ -314,6 +320,7 @@ export class EntityCollectionReducerMethods<T> {
   ): EntityCollection<T> {
     if (this.isOptimistic(action)) {
       const entities = this.guard.mustBeEntities(action); // ensure the entity has a PK
+      collection = this.changeTotal(collection, entities.length);
       const mergeStrategy = this.extractMergeStrategy(action);
       collection = this.entityChangeTracker.trackAddMany(
         entities,
@@ -370,6 +377,7 @@ export class EntityCollectionReducerMethods<T> {
         mergeStrategy
       );
     } else {
+      collection = this.changeTotal(collection, entities.length);
       collection = this.entityChangeTracker.mergeSaveAdds(
         entities,
         collection,
@@ -396,6 +404,7 @@ export class EntityCollectionReducerMethods<T> {
   ): EntityCollection<T> {
     if (this.isOptimistic(action)) {
       const entity = this.guard.mustBeEntity(action); // ensure the entity has a PK
+      collection = this.changeTotal(collection, 1);
       const mergeStrategy = this.extractMergeStrategy(action);
       collection = this.entityChangeTracker.trackAddOne(
         entity,
@@ -448,6 +457,7 @@ export class EntityCollectionReducerMethods<T> {
         false /*never skip*/
       );
     } else {
+      collection = this.changeTotal(collection, 1);
       collection = this.entityChangeTracker.mergeSaveAdds(
         [entity],
         collection,
@@ -503,6 +513,7 @@ export class EntityCollectionReducerMethods<T> {
 
     // If optimistic delete, track current state and remove immediately.
     if (this.isOptimistic(action)) {
+      collection = this.changeTotal(collection, -1);
       const mergeStrategy = this.extractMergeStrategy(action);
       collection = this.entityChangeTracker.trackDeleteOne(
         deleteId,
@@ -548,6 +559,7 @@ export class EntityCollectionReducerMethods<T> {
         mergeStrategy
       );
     } else {
+      collection = this.changeTotal(collection, -1);
       // Pessimistic: ignore mergeStrategy. Remove entity from the collection and from change tracking.
       collection = this.adapter.removeOne(deleteId as string, collection);
       collection = this.entityChangeTracker.commitOne(deleteId, collection);
@@ -573,8 +585,8 @@ export class EntityCollectionReducerMethods<T> {
     collection: EntityCollection<T>,
     action: EntityAction<(number | string | T)[]>
   ): EntityCollection<T> {
-    const deleteIds = this.extractData(action).map(
-      d => (typeof d === 'object' ? this.selectId(d) : (d as string | number))
+    const deleteIds = this.extractData(action).map(d =>
+      typeof d === 'object' ? this.selectId(d) : (d as string | number)
     );
     deleteIds.forEach(deleteId => {
       const change = collection.changeState[deleteId];
@@ -597,6 +609,7 @@ export class EntityCollectionReducerMethods<T> {
     });
     // If optimistic delete, track current state and remove immediately.
     if (this.isOptimistic(action)) {
+      collection = this.changeTotal(collection, -deleteIds.length);
       const mergeStrategy = this.extractMergeStrategy(action);
       collection = this.entityChangeTracker.trackDeleteMany(
         deleteIds,
@@ -635,15 +648,19 @@ export class EntityCollectionReducerMethods<T> {
     const deleteIds = this.extractData(action);
     if (this.isOptimistic(action)) {
       const mergeStrategy = this.extractMergeStrategy(action);
-      collection = this.entityChangeTracker.mergeSaveDeletes(
-        deleteIds,
-        collection,
-        mergeStrategy
-      );
+      collection = {
+        ...this.entityChangeTracker.mergeSaveDeletes(
+          deleteIds,
+          collection,
+          mergeStrategy
+        ),
+      };
     } else {
+      collection = this.changeTotal(collection, -deleteIds.length);
       // Pessimistic: ignore mergeStrategy. Remove entity from the collection and from change tracking.
       collection = this.adapter.removeMany(deleteIds as string[], collection);
       collection = this.entityChangeTracker.commitMany(deleteIds, collection);
+      collection = this.changeTotal(collection, deleteIds.length);
     }
     return this.setLoadingFalse(collection);
   }
@@ -808,6 +825,7 @@ export class EntityCollectionReducerMethods<T> {
     action: EntityAction<T>
   ): EntityCollection<T> {
     if (this.isOptimistic(action)) {
+      collection = this.changeTotal(collection, 1);
       const entity = this.guard.mustBeEntity(action); // ensure the entity has a PK
       const mergeStrategy = this.extractMergeStrategy(action);
       collection = this.entityChangeTracker.trackUpsertOne(
@@ -848,6 +866,9 @@ export class EntityCollectionReducerMethods<T> {
     collection: EntityCollection<T>,
     action: EntityAction<T>
   ) {
+    if (!this.isOptimistic(action)) {
+      collection = this.changeTotal(collection, 1);
+    }
     // For pessimistic save, ensure the server generated the primary key if the client didn't send one.
     const entity = this.guard.mustBeEntity(action);
     const mergeStrategy = this.extractMergeStrategy(action);
@@ -878,6 +899,7 @@ export class EntityCollectionReducerMethods<T> {
     if (this.isOptimistic(action)) {
       const entities = this.guard.mustBeEntities(action); // ensure the entity has a PK
       const mergeStrategy = this.extractMergeStrategy(action);
+      collection = this.changeTotal(collection, entities.length);
       collection = this.entityChangeTracker.trackUpsertMany(
         entities,
         collection,
@@ -919,6 +941,9 @@ export class EntityCollectionReducerMethods<T> {
     // For pessimistic save, ensure the server generated the primary key if the client didn't send one.
     const entities = this.guard.mustBeEntities(action);
     const mergeStrategy = this.extractMergeStrategy(action);
+    if (!this.isOptimistic(action)) {
+      collection = this.changeTotal(collection, entities.length);
+    }
     // Always update the cache with upserted entities returned from server
     collection = this.entityChangeTracker.mergeSaveUpserts(
       entities,
@@ -1154,12 +1179,12 @@ export class EntityCollectionReducerMethods<T> {
 
   protected setTotal(
     collection: EntityCollection<T>,
-    action: EntityAction<number>
+    action: EntityAction<any>
   ) {
-    const newTotal = this.extractData(action);
-    return collection.total === newTotal 
-      ? collection 
-      : {...collection, newTotal};
+    const newTotal = this.extractTotal(action);
+    return collection.total === newTotal
+      ? collection
+      : { ...collection, newTotal };
   }
 
   protected setFilter(
@@ -1213,7 +1238,29 @@ export class EntityCollectionReducerMethods<T> {
   // #region helpers
   /** Safely extract data from the EntityAction payload */
   protected extractData<D = any>(action: EntityAction<D>): D {
-    return (action.payload && action.payload.data) as D;
+    const data = (action.payload && action.payload.data) as D;
+    const responsePropName =
+      this.definition.entityReducerOptions &&
+      this.definition.entityReducerOptions.entitiesLocationPropName;
+    if (responsePropName && (data as Object).hasOwnProperty(responsePropName)) {
+      return (data as any)[responsePropName] as D;
+    }
+    return data;
+  }
+
+  private extractTotal<D = any>(action: EntityAction<D>): number | undefined {
+    if (
+      this.definition.entityReducerOptions &&
+      this.definition.entityReducerOptions.hasTotalInResponse
+    ) {
+      return (
+        action.payload &&
+        action.payload.data &&
+        (action.payload.data as any).total
+      );
+    } else {
+      return 0;
+    }
   }
 
   /** Safely extract MergeStrategy from EntityAction. Set to IgnoreChanges if collection itself is not tracked. */
@@ -1226,6 +1273,15 @@ export class EntityCollectionReducerMethods<T> {
 
   protected isOptimistic(action: EntityAction) {
     return action.payload && action.payload.isOptimistic === true;
+  }
+
+  protected changeTotal<T>(collection: EntityCollection<T>, addAmount: number) {
+    let newTotal = collection.total;
+    newTotal += addAmount;
+    if (newTotal) {
+      return { ...collection, total: newTotal };
+    }
+    return collection;
   }
 
   // #endregion helpers

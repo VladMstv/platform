@@ -16,6 +16,7 @@ export function createStateOperator<V, R>(
     const clonedEntityState: EntityState<V> = {
       ids: [...state.ids],
       entities: { ...state.entities },
+      total: state.total,
     };
 
     const didMutate = mutator(arg, clonedEntityState);

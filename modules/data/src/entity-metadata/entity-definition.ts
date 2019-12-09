@@ -5,12 +5,14 @@ import { EntityDispatcherDefaultOptions } from '../dispatchers/entity-dispatcher
 import { defaultSelectId } from '../utils/utilities';
 import { EntityCollection } from '../reducers/entity-collection';
 import { EntityMetadata } from './entity-metadata';
+import { EntityReducerOptions } from '../reducers/entity-reducer-options';
 
 export interface EntityDefinition<T = any> {
   entityName: string;
   entityAdapter: EntityAdapter<T>;
   entityDispatcherOptions?: Partial<EntityDispatcherDefaultOptions>;
   initialState: EntityCollection<T>;
+  entityReducerOptions?: Partial<EntityReducerOptions>;
   metadata: EntityMetadata<T>;
   noChangeTracking: boolean;
   selectId: IdSelector<T>;
@@ -42,12 +44,16 @@ export function createEntityDefinition<T, S extends object>(
     ...(metadata.additionalCollectionState || {}),
   });
 
+  const entityReducerOptions: Partial<EntityReducerOptions> =
+    metadata.entityReducerOptions || {};
+
   const noChangeTracking = metadata.noChangeTracking === true; // false by default
 
   return {
     entityName,
     entityAdapter,
     entityDispatcherOptions,
+    entityReducerOptions,
     initialState,
     metadata,
     noChangeTracking,

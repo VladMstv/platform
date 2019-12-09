@@ -29,7 +29,7 @@ describe('Sorted State Adapter', () => {
       sortComparer: (a, b) => a.title.localeCompare(b.title),
     });
 
-    state = { ids: [], entities: {} };
+    state = { ids: [], entities: {}, total: 0 };
   });
 
   it('should let you add one entity to the state', () => {
@@ -40,6 +40,7 @@ describe('Sorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -66,6 +67,7 @@ describe('Sorted State Adapter', () => {
         [AClockworkOrange.id]: AClockworkOrange,
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -83,6 +85,7 @@ describe('Sorted State Adapter', () => {
         [AClockworkOrange.id]: AClockworkOrange,
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -94,6 +97,7 @@ describe('Sorted State Adapter', () => {
     expect(withoutOne).toEqual({
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 
@@ -113,6 +117,7 @@ describe('Sorted State Adapter', () => {
       entities: {
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -129,6 +134,7 @@ describe('Sorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -143,6 +149,7 @@ describe('Sorted State Adapter', () => {
     expect(withoutAll).toEqual({
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 
@@ -166,6 +173,7 @@ describe('Sorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -219,6 +227,7 @@ describe('Sorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -247,6 +256,7 @@ describe('Sorted State Adapter', () => {
         },
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -275,6 +285,7 @@ describe('Sorted State Adapter', () => {
         },
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -303,6 +314,7 @@ describe('Sorted State Adapter', () => {
           ...secondChange,
         },
       },
+      total: 0,
     });
   });
 
@@ -320,8 +332,8 @@ describe('Sorted State Adapter', () => {
         book.title === TheGreatGatsby.title
           ? firstChange
           : book.title === AClockworkOrange.title
-            ? secondChange
-            : book,
+          ? secondChange
+          : book,
       withMany
     );
 
@@ -338,6 +350,7 @@ describe('Sorted State Adapter', () => {
           ...secondChange,
         },
       },
+      total: 0,
     });
   });
 
@@ -348,6 +361,7 @@ describe('Sorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -367,6 +381,7 @@ describe('Sorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -388,6 +403,7 @@ describe('Sorted State Adapter', () => {
         },
         [AClockworkOrange.id]: AClockworkOrange,
       },
+      total: 0,
     });
   });
 });

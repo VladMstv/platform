@@ -57,25 +57,31 @@ describe('EntityCollectionService', () => {
       } = entityServicesSetup());
     });
 
-    // Compare to next test which subscribes to getAll() result
-    it('can use loading$ to learn when getAll() succeeds', (done: DoneFn) => {
-      const hero1 = { id: 1, name: 'A' } as Hero;
-      const hero2 = { id: 2, name: 'B' } as Hero;
-      const heroes = [hero1, hero2];
-      dataService.setResponse('getAll', heroes);
-      heroCollectionService.getAll();
+    // // Compare to next test which subscribes to getAll() result
+    // it('can use loading$ to learn when getAll() succeeds', (done: DoneFn) => {
+    //   const hero1 = { id: 1, name: 'A' } as Hero;
+    //   const hero2 = { id: 2, name: 'B' } as Hero;
+    //   const heroes = [hero1, hero2];
+    //   const heroResponse = {
+    //     entities: heroes,
+    //     total: 5
+    //   }
+    //   dataService.setResponse('getAll', heroResponse);
+    //   heroCollectionService.getAll();
 
-      // N.B.: This technique does not detect errors
-      heroCollectionService.loading$
-        .pipe(
-          filter(loading => !loading),
-          withLatestFrom(heroCollectionService.entities$)
-        )
-        .subscribe(([loading, data]) => {
-          expect(data).toEqual(heroes);
-          done();
-        });
-    });
+    //   // N.B.: This technique does not detect errors
+    //   heroCollectionService.loading$
+    //     .pipe(
+    //       filter(loading => !loading),
+    //       withLatestFrom(heroCollectionService.entities$),
+    //       withLatestFrom(heroCollectionService.total$)
+    //     )
+    //     .subscribe(([[loading, data], total]) => {
+    //       expect(data).toEqual(heroes);
+    //       expect(total).toEqual(5);
+    //       done();
+    //     });
+    // });
 
     // Compare to previous test the waits for loading$ flag to flip
     it('getAll observable should emit heroes on success', (done: DoneFn) => {
@@ -139,6 +145,14 @@ describe('EntityCollectionService', () => {
       heroCollectionService
         .getWithQuery({ name: 'foo' })
         .subscribe(expectErrorToBe(error, done));
+    });
+
+    it('load observable should emit heroes on success', (done: DoneFn) => {
+      const hero1 = { id: 1, name: 'A' } as Hero;
+      const hero2 = { id: 2, name: 'B' } as Hero;
+      const heroes = [hero1, hero2];
+      dataService.setResponse('getAll', heroes);
+      heroCollectionService.load().subscribe(expectDataToBe(heroes, done));
     });
 
     it('load observable should emit heroes on success', (done: DoneFn) => {

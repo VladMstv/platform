@@ -28,7 +28,7 @@ describe('Unsorted State Adapter', () => {
       selectId: (book: BookModel) => book.id,
     });
 
-    state = { ids: [], entities: {} };
+    state = { ids: [], entities: {}, total: 0 };
   });
 
   it('should let you add one entity to the state', () => {
@@ -39,6 +39,7 @@ describe('Unsorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -65,6 +66,7 @@ describe('Unsorted State Adapter', () => {
         [AClockworkOrange.id]: AClockworkOrange,
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -82,6 +84,7 @@ describe('Unsorted State Adapter', () => {
         [AClockworkOrange.id]: AClockworkOrange,
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -93,6 +96,7 @@ describe('Unsorted State Adapter', () => {
     expect(withoutOne).toEqual({
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 
@@ -112,6 +116,7 @@ describe('Unsorted State Adapter', () => {
       entities: {
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -128,6 +133,7 @@ describe('Unsorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -142,6 +148,7 @@ describe('Unsorted State Adapter', () => {
     expect(withoutAll).toEqual({
       ids: [],
       entities: {},
+      total: 0,
     });
   });
 
@@ -165,6 +172,7 @@ describe('Unsorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -215,6 +223,7 @@ describe('Unsorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -243,6 +252,7 @@ describe('Unsorted State Adapter', () => {
           ...secondChange,
         },
       },
+      total: 0,
     });
   });
 
@@ -260,8 +270,8 @@ describe('Unsorted State Adapter', () => {
         book.title === TheGreatGatsby.title
           ? firstChange
           : book.title === AClockworkOrange.title
-            ? secondChange
-            : book,
+          ? secondChange
+          : book,
       withMany
     );
 
@@ -278,6 +288,7 @@ describe('Unsorted State Adapter', () => {
         },
         [AnimalFarm.id]: AnimalFarm,
       },
+      total: 0,
     });
   });
 
@@ -288,6 +299,7 @@ describe('Unsorted State Adapter', () => {
       entities: {
         [TheGreatGatsby.id]: TheGreatGatsby,
       },
+      total: 0,
     });
   });
 
@@ -307,6 +319,7 @@ describe('Unsorted State Adapter', () => {
           ...changes,
         },
       },
+      total: 0,
     });
   });
 
@@ -328,6 +341,7 @@ describe('Unsorted State Adapter', () => {
         },
         [AClockworkOrange.id]: AClockworkOrange,
       },
+      total: 0,
     });
   });
 });

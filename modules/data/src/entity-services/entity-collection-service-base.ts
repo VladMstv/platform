@@ -406,7 +406,7 @@ export class EntityCollectionServiceBase<
   /** Observable of all entities in the cached collection. */
   entities$: Observable<T[]> | Store<T[]>;
 
-  /** Observable of total numbe of entities that comes from server. */
+  /** Observable of total number of entities that comes from server. */
   total$: Observable<number> | Store<number>;
 
   /** Observable of actions related to this entity type. */
